@@ -15,14 +15,13 @@ import (
 	"github.com/gorilla/mux"
 )
 
-func Start(port int) {
+func Start(host string) {
 	r := mux.NewRouter()
 	r.HandleFunc("/", listContainers).Methods("GET")
 	r.HandleFunc("/new", createContainer).Methods("POST")
 	http.Handle("/", r)
-	listeningPort := fmt.Sprintf(":%v", port)
-	log.Printf("Listening on port %v...", listeningPort)
-	err := http.ListenAndServe(listeningPort, nil)
+	log.Printf("Listening on %v...", host)
+	err := http.ListenAndServe(host, nil)
 	if err != nil {
 		log.Fatalf("An error has occured : %v", err)
 	}

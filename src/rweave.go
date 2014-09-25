@@ -11,13 +11,12 @@ import (
 func main() {
 	flags := flag.NewFlagSet("remote", flag.ExitOnError)
 	daemon := flags.Bool("d", false, "Enable daemon mode")
-	port := flags.Int("p", 14243, "Port to bind to (Daemon mode)")
-	host := flags.String("h", "127.0.0.1:14243", "Server address in the form ip:port (Client mode)")
+	host := flags.String("h", "127.0.0.1:14243", "Server address in the form ip:port (Client and Daemons mode)")
 	templateFile := flags.String("t", "", "Template file location (Client mode)")
 	varsFile := flags.String("v", "", "Variables file location (Client mode)")
 	flags.Parse(os.Args[1:])
 	if *daemon {
-		server.Start(*port)
+		server.Start(*host)
 	} else {
 		command := flags.Args()
 		if len(command) == 0 {
