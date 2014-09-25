@@ -1,0 +1,4 @@
+[program:rweave]
+command=/usr/local/bin/rweave -d
+startsecs=5
+autorestart=true
