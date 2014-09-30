@@ -158,6 +158,16 @@ func buildWeaveArgs(config model.ContainerData) []string {
 	return args
 }
 
+func runDockerCommand(command string, args []string) error {
+	cmdArgs := make([]string, len(args)+1)
+	cmdArgs = append(cmdArgs, command)
+	cmdArgs = append(cmdArgs, args...)
+	cmd := exec.Command("docker", cmdArgs...)
+	_, err := cmd.CombinedOutput()
+	return err
+}
+
+
 func createContainer(w http.ResponseWriter, r *http.Request) {
 	p := make([]byte, r.ContentLength)
 	r.Body.Read(p)
@@ -195,8 +205,19 @@ func createContainer(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	cmd := exec.Command("docker", "pull", config.Image)
-	out, err := cmd.CombinedOutput()
+	err = runDockerCommand("pull", []string{config.Image})
+	if err != nil {
+		sendError(err, w)
+		return
+	}
+
+	err = runDockerCommand("stop", []string{config.Name})
+	if err != nil {
+		sendError(err, w)
+		return
+	}
+
+	err = runDockerCommand("rm", []string{config.Name})
 	if err != nil {
 		sendError(err, w)
 		return
@@ -204,8 +225,8 @@ func createContainer(w http.ResponseWriter, r *http.Request) {
 
 	fmt.Println(string(p))
 	args := buildWeaveArgs(config)
-	cmd = exec.Command(args[0], args[1:]...)
-	out, err = cmd.CombinedOutput()
+	cmd := exec.Command(args[0], args[1:]...)
+	out, err := cmd.CombinedOutput()
 	if err != nil {
 		sendError(err, w)
 		return
