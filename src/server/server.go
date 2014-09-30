@@ -195,10 +195,17 @@ func createContainer(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	cmd := exec.Command("docker", "pull", config.Image)
+	out, err := cmd.CombinedOutput()
+	if err != nil {
+		sendError(err, w)
+		return
+	}
+
 	fmt.Println(string(p))
 	args := buildWeaveArgs(config)
-	cmd := exec.Command(args[0], args[1:]...)
-	out, err := cmd.CombinedOutput()
+	cmd = exec.Command(args[0], args[1:]...)
+	out, err = cmd.CombinedOutput()
 	if err != nil {
 		sendError(err, w)
 		return
