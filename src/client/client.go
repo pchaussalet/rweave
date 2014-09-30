@@ -30,6 +30,10 @@ func List(host string) {
 func Deploy(command []string, templateFile, varsFile, host string) {
 	component := command[1]
 	targetEnv := command[2]
+	version := ""
+	if len(command) == 4 {
+		version = command[3]
+	}
 
 	templateRaw, err := ioutil.ReadFile(templateFile)
 	if err != nil {
@@ -47,6 +51,7 @@ func Deploy(command []string, templateFile, varsFile, host string) {
 		log.Fatalln(err)
 	}
 	vars := make(map[string]string, len(m["global"]) + len(m[targetEnv]))
+	vars["VERSION"] = version
 	vars = extractVars(vars, m, "global", component)
 	vars = extractVars(vars, m, targetEnv, component)
 	for key, value := range vars {
