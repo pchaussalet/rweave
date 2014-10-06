@@ -10,6 +10,8 @@ import (
 	"strings"
 )
 
+var actions = []string{"list", "deploy", "help"}
+
 func main() {
 	flags := flag.NewFlagSet("remote", flag.ExitOnError)
 	daemon := flags.Bool("d", false, "Enable daemon mode")
@@ -26,7 +28,7 @@ func main() {
 		}
 		command := flags.Args()
 		if len(command) == 0 {
-			flags.PrintDefaults()
+			usage(flags)
 			return
 		}
 		switch command[0] {
@@ -34,11 +36,35 @@ func main() {
 			client.List(*host, *verbose)
 		case "deploy":
 			if len(command) < 3 || *templateFile == "" || *varsFile == "" {
-				flags.PrintDefaults()
+				usage(flags)
 				return
 			}
 			client.Deploy(command, *templateFile, *varsFile, *host, *verbose)
+		case "help":
+			if len(command) == 1 {
+				doc("help")
+				return
+			}
+			doc(command[1])
 		}
 	}
 }
 
+func usage(flags *flag.FlagSet) {
+	flags.SetOutput(os.Stdout)
+	fmt.Printf("USAGE:\n%v [OPTIONS] (%v) [ARGS]\n", os.Args[0], strings.Join(actions, "|"))
+	flags.PrintDefaults()
+}
+
+func doc(action string) {
+	var message = ""
+	switch action {
+	case "help":
+		message = "help:\n\tPrint this message\nhelp <action>:\n\tPrint help about <action>"
+	case "list":
+		message = "list:\n\tPrint the list of containers running on the remote host"
+	case "deploy":
+		message = "deploy <component> <environment> <version>:\n\tDeploy version <version> of <component> using <environment>'s configuration"
+	}
+	fmt.Println(message)
+}
