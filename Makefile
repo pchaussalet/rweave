@@ -1,7 +1,15 @@
 APP_NAME=rweave
 
-build: vet
-	go build -v -o ./bin/${APP_NAME} ./src/${APP_NAME}.go
+all: linux mac win
+
+linux: vet
+	GOARCH=amd64 GOOS=linux go build -o ./bin/${APP_NAME}-linux-amd64 ./src/${APP_NAME}.go
+
+mac: vet
+	GOARCH=amd64 GOOS=darwin go build -o ./bin/${APP_NAME}-darwin-amd64 ./src/${APP_NAME}.go
+
+win: vet
+	GOARCH=amd64 GOOS=windows go build -x -o ./bin/${APP_NAME}-windows-windows ./src/${APP_NAME}.go
 
 clean:
 	rm -rf ./bin/*
